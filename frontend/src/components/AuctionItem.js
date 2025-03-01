@@ -12,12 +12,15 @@ function AuctionItem({ setNotification }) {
   useEffect(() => {
     const fetchItem = async () => {
       try {
-        const res = await axios.get(`http://localhost:5001/auctions/${id}`);
+        const token = localStorage.getItem('authToken');
+        const res = await axios.get(`http://localhost:5001/auctions/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setItem(res.data);
       } catch (error) {
         setNotification({
           type: 'error',
-          message: 'Error fetching auction item: ' + (error.response?.data?.message || error.message)
+          message: 'Error fetching auction item: ' + (error.response?.data?.message || error.message),
         });
       } finally {
         setIsLoading(false);
@@ -31,7 +34,7 @@ function AuctionItem({ setNotification }) {
     if (!bid || parseFloat(bid) <= (item?.currentBid || 0)) {
       setNotification({
         type: 'error',
-        message: 'Bid must be higher than the current bid'
+        message: 'Bid must be higher than the current bid',
       });
       return;
     }
@@ -48,13 +51,13 @@ function AuctionItem({ setNotification }) {
       setItem(res.data.item);
       setNotification({
         type: 'success',
-        message: 'Bid placed successfully!'
+        message: 'Bid placed successfully!',
       });
       setBid('');
     } catch (error) {
       setNotification({
         type: 'error',
-        message: error.response?.data?.message || 'Error placing bid'
+        message: error.response?.data?.message || 'Error placing bid',
       });
     } finally {
       setIsSubmitting(false);
@@ -70,44 +73,37 @@ function AuctionItem({ setNotification }) {
   }
 
   return (
-    <div className="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-4">{item.itemName}</h2>
-      <div className="space-y-4">
-        <p className="text-gray-700">{item.description}</p>
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <p className="text-lg font-semibold">Current Bid: ${item.currentBid}</p>
-          <p className="text-gray-600">Highest Bidder: {item.highestBidder || 'No bids yet'}</p>
-        </div>
-        {!item.isClosed && (
-          <div className="flex gap-2">
-            <input
-              type="number"
-              value={bid}
-              onChange={(e) => setBid(e.target.value)}
-              placeholder="Enter your bid"
-              min={item.currentBid + 1}
-              step="0.01"
-              className="flex-grow p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button 
-              onClick={handleBid}
-              disabled={isSubmitting}
-              className="w-32 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:bg-blue-300"
-            >
-              {isSubmitting ? 'Placing...' : 'Place Bid'}
-            </button>
-          </div>
-        )}
-        {item.isClosed && (
-          <div className="bg-yellow-50 p-4 rounded-lg">
-            <p className="text-yellow-800">This auction has ended.</p>
-            {item.winner && (
-              <p className="font-semibold">Winner: {item.winner}</p>
-            )}
-          </div>
-        )}
+    <div className="auction-item">
+      <h2>{item.itemName}</h2>
+      <p>{item.description}</p>
+      <div className="bid-info">
+        <p>Current Bid: <strong>${item.currentBid}</strong></p>
+        <p>Highest Bidder: {item.highestBidder || 'No bids yet'}</p>
+        <p>Ends: {new Date(item.closingTime).toLocaleString()}</p>
       </div>
+      {!item.isClosed && (
+        <div className="bid-form">
+          <input
+            type="number"
+            value={bid}
+            onChange={(e) => setBid(e.target.value)}
+            placeholder="Enter your bid"
+            min={item.currentBid + 1}
+            step="0.01"
+          />
+          <button onClick={handleBid} disabled={isSubmitting}>
+            {isSubmitting ? 'Placing...' : 'Place Bid'}
+          </button>
+        </div>
+      )}
+      {item.isClosed && (
+        <div className="closed-notice">
+          <p>This auction has ended.</p>
+          {item.winner && <p>Winner: <strong>{item.winner}</strong></p>}
+        </div>
+      )}
     </div>
   );
 }
+
 export default AuctionItem;

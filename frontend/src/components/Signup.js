@@ -2,39 +2,35 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function Signup() {
+function Signup({ setNotification }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    setError('');
 
     if (!username || !password) {
-      setError('Username and password are required');
+      setNotification({ type: 'error', message: 'Username and password are required' });
       return;
     }
 
     try {
-      const res = await axios.post('http://localhost:5001/signup', {
-        username,
-        password
-      });
-
-      alert('Signup successful! Please sign in.');
-      navigate('/signin'); // Redirect to signin page
+      await axios.post('http://localhost:5001/signup', { username, password });
+      setNotification({ type: 'success', message: 'Signup successful! Please sign in.' });
+      navigate('/signin');
     } catch (err) {
       console.error('Signup Error:', err.response?.data || err.message);
-      setError(err.response?.data?.message || 'Signup failed. Please try again.');
+      setNotification({
+        type: 'error',
+        message: err.response?.data?.message || 'Signup failed. Please try again.',
+      });
     }
   };
 
   return (
     <div className="form-container">
-      <h2>Signup</h2>
-      {error && <p className="error">{error}</p>}
+      <h2>Sign Up</h2>
       <form onSubmit={handleSignup}>
         <input
           type="text"
@@ -50,7 +46,7 @@ function Signup() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit">Signup</button>
+        <button type="submit">Sign Up</button>
       </form>
     </div>
   );

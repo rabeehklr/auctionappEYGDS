@@ -6,6 +6,7 @@ require('dotenv').config();
 
 // Import routes
 const authRoutes = require('./routes/auth.routes');
+const auctionRoutes = require('./routes/auction.routes');
 
 const app = express();
 
@@ -16,19 +17,20 @@ app.use(morgan('dev'));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
 app.use('/', authRoutes);
+app.use('/', auctionRoutes);
 
 // Basic error handling
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: 'Something went wrong!' });
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
 });
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

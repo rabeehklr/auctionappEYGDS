@@ -2,36 +2,36 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-function Signin() {
+function Signin({ setNotification, setIsAuthenticated }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSignin = async (e) => {
     e.preventDefault();
-    setError('');
 
     try {
       const res = await axios.post('http://localhost:5001/signin', { username, password });
-      console.log('Signin Response:', res.data);
+      const { token } = res.data;
 
-      if (res.data.token) {
-        localStorage.setItem('authToken', res.data.token);
-        navigate('/dashboard'); // Redirect to dashboard
-      } else {
-        setError('Invalid credentials');
+      if (token) {
+        localStorage.setItem('authToken', token);
+        setIsAuthenticated(true);
+        setNotification({ type: 'success', message: 'Successfully signed in!' });
+        navigate('/dashboard');
       }
     } catch (err) {
-      console.error('Signin Request Error:', err.response?.data || err.message);
-      setError(err.response?.data?.message || 'Something went wrong. Please try again.');
+      console.error('Signin Error:', err.response?.data || err.message);
+      setNotification({
+        type: 'error',
+        message: err.response?.data?.message || 'Signin failed. Please try again.',
+      });
     }
   };
 
   return (
     <div className="form-container">
-      <h2>Signin</h2>
-      {error && <p className="error">{error}</p>}
+      <h2>Sign In</h2>
       <form onSubmit={handleSignin}>
         <input
           type="text"
@@ -47,7 +47,7 @@ function Signin() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit">Signin</button>
+        <button type="submit">Sign In</button>
       </form>
     </div>
   );

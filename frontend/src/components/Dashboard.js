@@ -2,56 +2,70 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 
-function Dashboard() {
-  const [items, setItems] = useState([]);
-  const nav = useNavigate();
+function Dashboard({ setNotification }) {
+  const [auctions, setAuctions] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      nav('/signin'); // Redirect to signin if not authenticated
-      return;
-    }
-
-    const fetchItems = async () => {
+    const fetchAuctions = async () => {
       try {
-        const res = await axios.get('http://localhost:5001/auctions');
-        setItems(res.data);
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          navigate('/signin');
+          return;
+        }
+        const res = await axios.get('http://localhost:5001/auctions', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setAuctions(res.data);
       } catch (error) {
-        console.error('Error fetching auctions:', error);
+        setNotification({ type: 'error', message: 'Error fetching auctions' });
       }
     };
-    fetchItems();
-  }, []);
+    fetchAuctions();
+  }, [navigate, setNotification]);
 
-  // 🔹 Handle Logout
-  // const handleLogout = () => {
-  //   localStorage.removeItem('authToken'); // Remove token
-  //   navigate('/signin'); // Redirect to Sign In page
-  // };
+  const handleDelete = async (id) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      await axios.delete(`http://localhost:5001/auction/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setAuctions(auctions.filter((auction) => auction._id !== id));
+      setNotification({ type: 'success', message: 'Auction deleted successfully' });
+    } catch (error) {
+      setNotification({ type: 'error', message: 'Error deleting auction' });
+    }
+  };
 
   return (
-    <div>
-      <h2>Auction Dashboard</h2>
-
-      {/* 🔹 Logout Button 
-      <button onClick={handleLogout} style={{ marginLeft: '10px', background: 'red', color: 'white' }}>
-        Logout
-      </button>*/}
-
-      <Link to="/post-auction">
-        <button>Post New Auction</button>
-      </Link>
-
-      <ul>
-        {items.map((item) => (
-          <li key={item._id}>
-            <Link to={`/auction/${item._id}`}>
-              {item.itemName} - Current Bid: ${item.currentBid} {item.isClosed ? '(Closed)' : ''}
-            </Link>
-          </li>
+    <div className="dashboard">
+      <div className="header">
+        <h2>Auction Dashboard</h2>
+        <Link to="/post-auction">Post New Auction</Link>
+      </div>
+      <div className="auction-grid">
+        {auctions.map((auction) => (
+          <div key={auction._id} className="auction-card">
+            <h3>{auction.itemName}</h3>
+            <p>{auction.description}</p>
+            <p>Current Bid: <strong>${auction.currentBid}</strong></p>
+            <p>Ends: {new Date(auction.closingTime).toLocaleString()}</p>
+            <p className={`status ${auction.isClosed ? 'closed' : 'open'}`}>
+              {auction.isClosed ? 'Closed' : 'Open'}
+            </p>
+            <div className="buttons">
+              <Link to={`/auction/${auction._id}`} className="view">View</Link>
+              {!auction.isClosed && auction.createdBy === JSON.parse(atob(localStorage.getItem('authToken').split('.')[1])).userId && (
+                <>
+                  <Link to={`/edit-auction/${auction._id}`} className="edit">Edit</Link>
+                  <button onClick={() => handleDelete(auction._id)} className="delete">Delete</button>
+                </>
+              )}
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

@@ -3,36 +3,29 @@ import { Link } from 'react-router-dom';
 
 function Landing() {
   return (
-    <div className="max-w-4xl mx-auto text-center">
-      <h1 className="text-4xl font-bold mb-6">Welcome to AuctionHub</h1>
-      <div className="bg-white p-6 rounded-lg shadow mb-12">
-        <p className="text-lg text-gray-700 mb-6">
-          Experience the thrill of online auctions with AuctionHub - where every bid brings you closer to your desired items. Our platform provides a secure and transparent environment for buyers and sellers to connect and trade.
+    <div className="landing">
+      <div className="hero">
+        <h1>Welcome to AuctionHub</h1>
+        <p>
+          Discover the excitement of online auctions. Bid on unique items, sell your treasures, and join a vibrant community of buyers and sellers.
         </p>
-        <div className="space-x-4">
-          <Link to="/signup" className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-            Get Started
-          </Link>
-          <Link to="/signin" className="px-6 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">
-            Sign In
-          </Link>
+        <div className="buttons">
+          <Link to="/signup" className="signup">Sign Up Now</Link>
+          <Link to="/signin" className="signin">Sign In</Link>
         </div>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-xl font-semibold mb-3">Easy Bidding</h3>
-          <p className="text-gray-600">Place bids with just a few clicks and track your auctions in real-time.</p>
+      <div className="features">
+        <div className="feature">
+          <h3>Easy Bidding</h3>
+          <p>Place bids effortlessly and track auctions in real-time.</p>
         </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-xl font-semibold mb-3">Secure Platform</h3>
-          <p className="text-gray-600">Your transactions are protected with industry-standard security measures.</p>
+        <div className="feature">
+          <h3>Secure Transactions</h3>
+          <p>Your payments and data are protected with top-notch security.</p>
         </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-xl font-semibold mb-3">Fair Trading</h3>
-          <p className="text-gray-600">Our transparent bidding system ensures fair competition for all users.</p>
+        <div className="feature">
+          <h3>Fair Marketplace</h3>
+          <p>Transparent rules ensure a level playing field for all.</p>
         </div>
       </div>
     </div>
