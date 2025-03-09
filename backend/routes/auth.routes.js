@@ -19,14 +19,10 @@ router.post('/signup', async (req, res) => {
             return res.status(400).json({ message: 'Username already exists' });
         }
 
-        // Hash password
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // Create new user
+        // Create new user (password will be hashed by pre-save middleware)
         const newUser = new User({
             username,
-            password: hashedPassword
+            password // Pass plain-text password; middleware will hash it
         });
 
         await newUser.save();
