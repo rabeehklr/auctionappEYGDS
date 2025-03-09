@@ -73,7 +73,7 @@ router.delete('/auction/:id', authMiddleware, async (req, res) => {
   }
 });
 
-// Place bid
+// Place bids
 router.post('/bid/:id', authMiddleware, async (req, res) => {
   try {
     const { amount } = req.body;
